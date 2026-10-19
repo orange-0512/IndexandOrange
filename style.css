@@ -1,0 +1,630 @@
+:root {
+  --color-bg: #070707;
+  --color-card-bg: #0d0d0d;
+  --color-neon-green: #39ff14;
+  --color-neon-green-glow: rgba(57, 255, 20, 0.5);
+  --color-neon-pink: #ff007f;
+  --color-neon-pink-glow: rgba(255, 0, 127, 0.6);
+  --color-yellow: #ffee00;
+  --color-red: #ff2222;
+  --color-text-white: #ffffff;
+  --color-text-muted: #b0b0b0;
+  --color-input-bg: #ffffff;
+  --color-input-text: #111111;
+
+  --font-serif: "Noto Serif TC", "Songti TC", serif;
+  --font-sans: "Noto Sans TC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+
+  --border-radius-pill: 9999px;
+  --border-radius-card: 22px;
+  --border-radius-input: 8px;
+}
+
+/* 基礎重設與全域樣式 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-white);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+  padding: 16px 12px 64px 12px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 主容器：限制手機視角寬度並自適應電腦居中排版 */
+.page-container {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+}
+
+/* 霓虹邊框與光暈輔助 Class */
+.neon-border-green {
+  border: 2px solid var(--color-neon-green);
+  border-radius: var(--border-radius-card);
+  box-shadow: 0 0 10px var(--color-neon-green-glow),
+              inset 0 0 8px rgba(57, 255, 20, 0.2);
+}
+
+.neon-pill-green {
+  border: 2px solid var(--color-neon-green);
+  border-radius: var(--border-radius-pill);
+  color: var(--color-neon-green);
+  box-shadow: 0 0 12px var(--color-neon-green-glow);
+  text-shadow: 0 0 6px var(--color-neon-green-glow);
+}
+
+.neon-pill-pink {
+  border: 2px solid var(--color-neon-pink);
+  border-radius: var(--border-radius-pill);
+  color: var(--color-text-white);
+  background-color: transparent;
+  box-shadow: 0 0 12px var(--color-neon-pink-glow);
+  text-shadow: 0 0 8px var(--color-neon-pink);
+}
+
+.neon-text-pink {
+  color: var(--color-neon-pink);
+  text-shadow: 0 0 8px var(--color-neon-pink-glow);
+  font-weight: 700;
+}
+
+.neon-text-green {
+  color: var(--color-neon-green);
+  text-shadow: 0 0 8px var(--color-neon-green-glow);
+}
+
+/* 標籤膠囊 (Section Tag) */
+.section-tag-pill {
+  padding: 6px 24px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+/* 通用動作按鈕 */
+.action-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 32px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+  text-decoration: none;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(255, 0, 127, 0.9);
+  background-color: rgba(255, 0, 127, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(1px);
+}
+
+/* ================================================= */
+/* 1. 主視覺海報區塊 (Hero Section) */
+/* ================================================= */
+.hero-section {
+  width: 100%;
+}
+
+.poster-card {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--color-card-bg);
+  position: relative;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.poster-inner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 300 / 491;
+  overflow: hidden;
+  border-radius: 14px;
+  background-color: #1a1a1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.photo-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-image.is-placeholder {
+  display: none;
+}
+
+.photo-fallback {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2b2b2b, #121212);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  padding: 20px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-image.is-placeholder + .photo-fallback {
+  display: flex;
+}
+
+/* 復古爆炸貼紙「速報！」 */
+.burst-badge {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-6deg);
+  z-index: 10;
+  background: radial-gradient(circle, var(--color-yellow) 20%, #ff8800 65%, var(--color-red) 100%);
+  color: #000000;
+  font-weight: 900;
+  font-size: 1.15rem;
+  padding: 12px 18px;
+  clip-path: polygon(
+    50% 0%, 63% 18%, 82% 7%, 82% 28%, 100% 30%, 88% 50%,
+    100% 70%, 80% 74%, 82% 95%, 62% 84%, 50% 100%, 38% 84%,
+    18% 95%, 20% 74%, 0% 70%, 12% 50%, 0% 30%, 18% 28%,
+    18% 7%, 37% 18%
+  );
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  letter-spacing: 1px;
+  animation: pulse-glow 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0% { transform: translateX(-50%) rotate(-6deg) scale(0.96); filter: drop-shadow(0 0 5px rgba(255, 238, 0, 0.6)); }
+  100% { transform: translateX(-50%) rotate(-4deg) scale(1.04); filter: drop-shadow(0 0 12px rgba(255, 34, 34, 0.8)); }
+}
+
+/* 海報文字浮層 */
+.poster-text-overlay {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 85px 16px 20px 16px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.85) 100%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.main-title {
+  font-family: var(--font-serif);
+  font-size: 2.8rem;
+  line-height: 1.25;
+  letter-spacing: 4px;
+  font-weight: 900;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 80px;
+  row-gap: 36px;
+  width: 100%;
+  max-width: 290px;
+  color: #ffee33;
+  text-shadow:
+    2px 2px 0px #b30000,
+    -2px -2px 0px #b30000,
+    2px -2px 0px #b30000,
+    -2px 2px 0px #b30000,
+    0 0 14px rgba(255, 50, 0, 0.9);
+}
+
+.couple-names {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  letter-spacing: 2px;
+  color: #f5f5f5;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+  margin-top: auto;
+  margin-bottom: 4px;
+}
+
+.sub-slogan {
+  font-family: var(--font-serif);
+  font-size: 1.85rem;
+  letter-spacing: 6px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 3px 8px rgba(0,0,0,0.9);
+}
+
+/* ================================================= */
+/* 2. 區塊通用排版 (Section Block) */
+/* ================================================= */
+.section-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.sub-header-white {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--color-text-white);
+  margin-bottom: 16px;
+}
+
+/* ================================================= */
+/* 3. 倒數計時區塊 (Countdown Section) */
+/* ================================================= */
+.countdown-display-card {
+  width: 100%;
+  padding: 18px 12px;
+  background-color: var(--color-card-bg);
+  margin-bottom: 16px;
+}
+
+.countdown-digits {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--font-mono);
+}
+
+.digit-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 64px;
+}
+
+.digit-val {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-neon-pink);
+  text-shadow: 0 0 12px var(--color-neon-pink);
+}
+
+.digit-lbl {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--color-neon-pink);
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+
+.digit-sep {
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: var(--color-neon-pink);
+  text-shadow: 0 0 10px var(--color-neon-pink);
+  transform: translateY(-8px);
+}
+
+/* ================================================= */
+/* 4. 交通資訊區塊 (Traffic Section) */
+/* ================================================= */
+.info-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.info-card {
+  background-color: var(--color-card-bg);
+  padding: 18px 6px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 125px;
+}
+
+.info-card .card-title {
+  font-size: 0.95rem;
+  color: var(--color-neon-green);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.info-card .card-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-white);
+  line-height: 1.35;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.info-card .card-sub {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+/* ================================================= */
+/* 5. 出席調查表單區塊 (RSVP Form) */
+/* ================================================= */
+.deadline-notice {
+  font-size: 0.95rem;
+  color: #ffffff;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.rsvp-form {
+  width: 100%;
+  background-color: var(--color-card-bg);
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: left;
+}
+
+.form-row-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.full-width {
+  width: 100%;
+}
+
+.form-group label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: var(--color-text-white);
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group input[type="number"] {
+  width: 100%;
+  background-color: var(--color-input-bg);
+  color: var(--color-input-text);
+  border: 1px solid #cccccc;
+  border-radius: var(--border-radius-input);
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--color-neon-green);
+  box-shadow: 0 0 8px var(--color-neon-green-glow);
+}
+
+/* 單選按鈕膠囊組 */
+.attendance-fieldset {
+  border: none;
+  padding: 0;
+  margin: 6px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.fieldset-legend {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--color-text-white);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.radio-pill-group {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.radio-pill-item {
+  flex: 1;
+  max-width: 170px;
+  position: relative;
+  cursor: pointer;
+}
+
+.radio-pill-item input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio-pill-item .pill-btn {
+  display: block;
+  text-align: center;
+  padding: 10px 12px;
+  background-color: #ffffff;
+  color: #111111;
+  border-radius: var(--border-radius-pill);
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.radio-pill-item input[type="radio"]:checked + .pill-btn {
+  background-color: var(--color-neon-pink);
+  color: #ffffff;
+  box-shadow: 0 0 12px var(--color-neon-pink-glow);
+}
+
+/* 人數細節展開/收合容器 */
+.attendee-details-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.attendee-details-container.is-hidden {
+  display: none;
+}
+
+/* 祝福與備註文字框（霓虹粉邊框） */
+.message-group textarea {
+  width: 100%;
+  background-color: rgba(20, 20, 20, 0.85);
+  border: 1.5px solid var(--color-neon-pink);
+  border-radius: 14px;
+  padding: 12px;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  outline: none;
+  resize: vertical;
+  min-height: 72px;
+  box-shadow: inset 0 0 6px rgba(255, 0, 127, 0.2);
+}
+
+.message-group textarea:focus {
+  box-shadow: 0 0 10px var(--color-neon-pink-glow), inset 0 0 8px rgba(255, 0, 127, 0.3);
+}
+
+.form-submit-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.submit-btn {
+  width: 100%;
+  max-width: 280px;
+}
+
+.form-feedback {
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.4;
+  margin-top: 6px;
+  min-height: 24px;
+}
+
+.form-feedback.is-success {
+  color: var(--color-neon-green);
+  text-shadow: 0 0 6px var(--color-neon-green-glow);
+}
+
+.form-feedback.is-error {
+  color: #ff4d4f;
+  text-shadow: 0 0 6px rgba(255, 77, 79, 0.7);
+}
+
+/* ================================================= */
+/* 6. 頁尾署名區塊 (Footer Section) */
+/* ================================================= */
+.footer-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.closing-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.closing-note {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  max-width: 320px;
+  letter-spacing: 0.8px;
+}
+
+.copyright-text {
+  font-size: 0.75rem;
+  color: #666666;
+  margin-top: 16px;
+  letter-spacing: 0.5px;
+}
+
+/* ================================================= */
+/* 響應式優化 (電腦螢幕與平板) */
+/* ================================================= */
+@media (min-width: 768px) {
+  body {
+    padding-top: 36px;
+    padding-bottom: 80px;
+    background: radial-gradient(circle at 50% 20%, #151515 0%, #050505 80%);
+  }
+
+  .page-container {
+    max-width: 480px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    border-radius: 28px;
+    padding: 16px 8px;
+  }
+}

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文定之喜｜葉政宣 & 翁千矞 電子喜帖</title>
+  <meta name="description" content="葉政宣與翁千矞的文定之喜電子喜帖，誠摯邀請您共襄盛舉。內含婚宴時間、地點交通指引及出席回覆表單。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="page-container">
+    
+    <!-- 主視覺區塊（已整合 Figma 匯出之完整文定海報） -->
+    <header class="hero-section">
+      <div class="poster-card neon-border-green">
+        <h1 class="sr-only">文定之喜｜葉政宣 & 翁千矞 邀您呷奔</h1>
+        <div class="poster-inner">
+          <img src="./assets/hero_photo.png" alt="文定之喜 葉政宣 & 翁千矞 邀您呷奔" class="hero-image" id="heroImage">
+        </div>
+      </div>
+    </header>
+
+    <!-- 倒數計時區塊 -->
+    <section class="section-block countdown-section" aria-label="婚禮倒數計時">
+      <div class="section-tag-pill neon-pill-green">倒數計時</div>
+      <div class="countdown-display-card neon-border-green">
+        <div class="countdown-digits" id="countdownDigits">
+          <div class="digit-unit">
+            <span class="digit-val" id="daysVal">00</span>
+            <span class="digit-lbl">天</span>
+          </div>
+          <span class="digit-sep">:</span>
+          <div class="digit-unit">
+            <span class="digit-val" id="hoursVal">00</span>
+            <span class="digit-lbl">時</span>
+          </div>
+          <span class="digit-sep">:</span>
+          <div class="digit-unit">
+            <span class="digit-val" id="minutesVal">00</span>
+            <span class="digit-lbl">分</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="action-btn neon-pill-pink" id="calendarBtn">加入行事曆</button>
+    </section>
+
+    <!-- 交通資訊區塊 -->
+    <section class="section-block traffic-section" aria-label="交通與宴會資訊">
+      <div class="section-tag-pill neon-pill-green">交通資訊</div>
+      <h2 class="sub-header-white">乘車資訊與交通指引</h2>
+      <div class="info-cards-grid">
+        <article class="info-card neon-border-green">
+          <h3 class="card-title">宴會地點</h3>
+          <p class="card-desc" id="venueName">來來龍鳳城</p>
+          <p class="card-sub" id="venueAddress">苗栗縣竹南鎮龍江街 103 之 1 號</p>
+        </article>
+        <article class="info-card neon-border-green">
+          <h3 class="card-title">大眾運輸</h3>
+          <p class="card-desc" id="transitDesc">台鐵竹南火車站</p>
+          <p class="card-sub">轉乘計程車約 10 分鐘</p>
+        </article>
+        <article class="info-card neon-border-green">
+          <h3 class="card-title">自行開車</h3>
+          <p class="card-desc" id="parkingDesc">附設專用停車場</p>
+          <p class="card-sub">台 61 線西濱快速公路旁</p>
+        </article>
+      </div>
+      <button type="button" class="action-btn neon-pill-pink" id="mapsBtn">開啟 Google 地圖</button>
+    </section>
+
+    <!-- 出席調查表單區塊 -->
+    <section class="section-block rsvp-section" aria-label="出席意願調查">
+      <div class="section-tag-pill neon-pill-green">出席調查</div>
+      <p class="deadline-notice">請於 2026/11/16 日前填寫完畢 方便統計桌數</p>
+
+      <form class="rsvp-form neon-border-green" id="rsvpForm" novalidate>
+        <!-- 基本聯絡資料 -->
+        <div class="form-row-two-col">
+          <div class="form-group">
+            <label for="guestName">賓客姓名</label>
+            <input type="text" id="guestName" name="guestName" placeholder="輸入真實姓名" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="guestPhone">聯絡電話</label>
+            <input type="tel" id="guestPhone" name="guestPhone" placeholder="例：0912345678" required autocomplete="tel">
+          </div>
+        </div>
+
+        <!-- 是否出席 -->
+        <fieldset class="attendance-fieldset">
+          <legend class="fieldset-legend">是否出席宴席？</legend>
+          <div class="radio-pill-group">
+            <label class="radio-pill-item">
+              <input type="radio" name="attendanceStatus" value="attend" checked>
+              <span class="pill-btn">準時出席</span>
+            </label>
+            <label class="radio-pill-item">
+              <input type="radio" name="attendanceStatus" value="decline">
+              <span class="pill-btn">祝福滿滿心意到</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- 人數統計（若出席才需填寫） -->
+        <div class="attendee-details-container" id="attendeeDetails">
+          <div class="form-row-two-col">
+            <div class="form-group">
+              <label for="adultCount">大人人數</label>
+              <input type="number" id="adultCount" name="adultCount" min="1" max="10" value="1" required>
+            </div>
+            <div class="form-group">
+              <label for="childCount">兒童人數（需餐椅）</label>
+              <input type="number" id="childCount" name="childCount" min="0" max="5" value="0">
+            </div>
+          </div>
+
+          <div class="form-row-two-col">
+            <div class="form-group">
+              <label for="meatCount">葷食數量</label>
+              <input type="number" id="meatCount" name="meatCount" min="0" max="10" value="1" required>
+            </div>
+            <div class="form-group">
+              <label for="vegCount">素食數量</label>
+              <input type="number" id="vegCount" name="vegCount" min="0" max="10" value="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- 祝福話語 -->
+        <div class="form-group full-width message-group">
+          <label for="blessingMsg" class="neon-text-pink">給新人的一點話語</label>
+          <textarea id="blessingMsg" name="blessingMsg" rows="3" placeholder="留下您對新人的祝福"></textarea>
+        </div>
+
+        <!-- 備註欄 -->
+        <div class="form-group full-width message-group">
+          <label for="remarks" class="neon-text-pink">備註欄</label>
+          <textarea id="remarks" name="remarks" rows="3" placeholder="例：若有需要嬰兒椅／素食請再次填寫"></textarea>
+        </div>
+
+        <!-- 送出按鈕 -->
+        <div class="form-submit-container">
+          <button type="submit" class="action-btn neon-pill-pink submit-btn" id="submitBtn">
+            確認送出，期待相見
+          </button>
+        </div>
+
+        <!-- 狀態回饋訊息 -->
+        <div class="form-feedback" id="formFeedback" role="alert" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- 頁尾署名區塊 -->
+    <footer class="footer-section">
+      <p class="closing-title neon-text-green">葉政宣 & 翁千矞 敬邀</p>
+      <p class="closing-note neon-text-green">
+        竭誠期待您的蒞臨，與我們一同分享這份喜悅！
+      </p>
+      <p class="copyright-text">
+        © 2026 葉政宣 & 翁千矞 · Web design by Winsor
+      </p>
+    </footer>
+
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
