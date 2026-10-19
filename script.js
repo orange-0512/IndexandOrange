@@ -3,7 +3,7 @@
  * 可依新人實際場地與後端資料庫更換以下設定值
  */
 const WEDDING_CONFIG = {
-  // 婚宴目標時間（專案名稱 wedding1206 預設設為 2026/12/06 12:00）
+  // 婚宴目標時間：2026/12/06 12:00
   targetDate: new Date("2026-12-06T12:00:00+08:00").getTime(),
 
   // 婚宴場地名稱與地址
@@ -14,46 +14,47 @@ const WEDDING_CONFIG = {
   },
 
   // 賓客名單搜集後端 API（支援 Google Apps Script 網路應用程式網址）
-  // 若為空字串，將預設儲存於瀏覽器 localStorage 作為本機測試
-  sheetApiEndpoint: "https://script.google.com/macros/library/d/1UJFY2TJg70JiO_hf5quhH1DNyymR2qL1drFDcMBZAu8euxxIWfifAmnR/2"
+  // 注意：此網址必須是「網路應用程式」結尾為 /exec 的網址，不可使用 /library/ 程式庫網址
+  sheetApiEndpoint: "https://script.google.com/macros/s/AKfycbyH8foO_0mg-xbfHIXXqkjQ5Z6NVbrRwL1IeWZMc0NAlrnVexKRhPx4s91BLy3WxSxyLg/exec",
+};
 
 document.addEventListener("DOMContentLoaded", () => {
-    initCountdown();
-    initCalendarAction();
-    initMapAction();
-    initFormInteractions();
-  });
+  initCountdown();
+  initCalendarAction();
+  initMapAction();
+  initFormInteractions();
+});
 
-  /**
-   * 1. 倒數計時模組
-   */
-  function initCountdown() {
-    const daysEl = document.getElementById("daysVal");
-const hoursEl = document.getElementById("hoursVal");
-const minutesEl = document.getElementById("minutesVal");
+/**
+ * 1. 倒數計時模組
+ */
+function initCountdown() {
+  const daysEl = document.getElementById("daysVal");
+  const hoursEl = document.getElementById("hoursVal");
+  const minutesEl = document.getElementById("minutesVal");
 
-function update() {
-  const now = new Date().getTime();
-  const diff = WEDDING_CONFIG.targetDate - now;
+  function update() {
+    const now = new Date().getTime();
+    const diff = WEDDING_CONFIG.targetDate - now;
 
-  if (diff <= 0) {
-    if (daysEl) daysEl.textContent = "00";
-    if (hoursEl) hoursEl.textContent = "00";
-    if (minutesEl) minutesEl.textContent = "00";
-    return;
+    if (diff <= 0) {
+      if (daysEl) daysEl.textContent = "00";
+      if (hoursEl) hoursEl.textContent = "00";
+      if (minutesEl) minutesEl.textContent = "00";
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (daysEl) daysEl.textContent = String(days).padStart(2, "0");
+    if (hoursEl) hoursEl.textContent = String(hours).padStart(2, "0");
+    if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, "0");
   }
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-  if (daysEl) daysEl.textContent = String(days).padStart(2, "0");
-  if (hoursEl) hoursEl.textContent = String(hours).padStart(2, "0");
-  if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, "0");
-}
-
-update();
-setInterval(update, 1000);
+  update();
+  setInterval(update, 1000);
 }
 
 /**
@@ -119,8 +120,10 @@ function initFormInteractions() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    feedbackEl.textContent = "";
-    feedbackEl.className = "form-feedback";
+    if (feedbackEl) {
+      feedbackEl.textContent = "";
+      feedbackEl.className = "form-feedback";
+    }
 
     const formData = new FormData(form);
     const guestName = formData.get("guestName")?.trim();
@@ -177,18 +180,25 @@ function initFormInteractions() {
 
     try {
       // 一律備份至本機 localStorage 避免意外遺失
-      const storedList = JSON.parse(localStorage.getItem("wedding_rsvp_list") || "[]");
-      storedList.push(payload);
-      localStorage.setItem("wedding_rsvp_list", JSON.stringify(storedList));
+      try {
+        const storedList = JSON.parse(localStorage.getItem("wedding_rsvp_list") || "[]");
+        storedList.push(payload);
+        localStorage.setItem("wedding_rsvp_list", JSON.stringify(storedList));
+      } catch (storageErr) {
+        console.warn("LocalStorage backup warning:", storageErr);
+      }
 
-      if (WEDDING_CONFIG.sheetApiEndpoint) {
-        // 送出至後端 Google Apps Script（使用 no-cors 模式防止 GAS 重定向引發跨域阻擋）
-        await fetch(WEDDING_CONFIG.sheetApiEndpoint, {
+      // 送出至後端 Google Apps Script（需為 /exec 結尾的 Web App URL）
+      const endpoint = WEDDING_CONFIG.sheetApiEndpoint?.trim();
+      if (endpoint && endpoint.includes("/exec")) {
+        await fetch(endpoint, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify(payload),
         });
+      } else if (endpoint) {
+        console.warn("提醒：目前設定的 Google Apps Script 網址非 Web App 執行端點（未包含 /exec），資料已暫存於瀏覽器。");
       }
 
       showFeedback("已成功送出！感謝您的填寫與祝福。", "success");
@@ -207,6 +217,7 @@ function initFormInteractions() {
   });
 
   function showFeedback(text, type) {
+    if (!feedbackEl) return;
     feedbackEl.textContent = text;
     feedbackEl.className = `form-feedback is-${type}`;
   }
