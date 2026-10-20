@@ -3,8 +3,8 @@
  * 可依新人實際場地與後端資料庫更換以下設定值
  */
 const WEDDING_CONFIG = {
-  // 婚宴目標時間：2026/12/06 12:00
-  targetDate: new Date("2026-12-06T12:00:00+08:00").getTime(),
+  // 婚宴目標時間：2026 年 12 月 6 日 12:00（使用數值建構，百分之百相容所有手機與 iOS Safari）
+  targetDate: new Date(2026, 11, 6, 12, 0, 0).getTime(),
 
   // 婚宴場地名稱與地址
   venue: {
@@ -14,16 +14,24 @@ const WEDDING_CONFIG = {
   },
 
   // 賓客名單搜集後端 API（支援 Google Apps Script 網路應用程式網址）
-  // 注意：此網址必須是「網路應用程式」結尾為 /exec 的網址，不可使用 /library/ 程式庫網址
   sheetApiEndpoint: "https://script.google.com/macros/s/AKfycbyH8foO_0mg-xbfHIXXqkjQ5Z6NVbrRwL1IeWZMc0NAlrnVexKRhPx4s91BLy3WxSxyLg/exec",
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+// 立即執行或等待 DOM 就緒（防禦性執行，避免因載入時序錯過 DOMContentLoaded 事件）
+function initAll() {
   initCountdown();
   initCalendarAction();
   initMapAction();
   initFormInteractions();
-});
+  initYouTubeAudio();
+  initMusicToggle();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAll);
+} else {
+  initAll();
+}
 
 /**
  * 1. 倒數計時模組
@@ -34,10 +42,10 @@ function initCountdown() {
   const minutesEl = document.getElementById("minutesVal");
 
   function update() {
-    const now = new Date().getTime();
+    const now = Date.now();
     const diff = WEDDING_CONFIG.targetDate - now;
 
-    if (diff <= 0) {
+    if (diff <= 0 || isNaN(diff)) {
       if (daysEl) daysEl.textContent = "00";
       if (hoursEl) hoursEl.textContent = "00";
       if (minutesEl) minutesEl.textContent = "00";
@@ -198,7 +206,7 @@ function initFormInteractions() {
           body: JSON.stringify(payload),
         });
       } else if (endpoint) {
-        console.warn("提醒：目前設定的 Google Apps Script 網址非 Web App 執行端點（未包含 /exec），資料已暫存於瀏覽器。");
+        console.warn("提醒：目前設定的 Google Apps Script 網址非 Web App 執行端點，資料已暫存於瀏覽器。");
       }
 
       showFeedback("已成功送出！感謝您的填寫與祝福。", "success");
@@ -212,7 +220,7 @@ function initFormInteractions() {
       console.error("RSVP Submission Error:", err);
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "確認送出，期待相見";
+      submitBtn.textContent = "確認填寫，送出！";
     }
   });
 
@@ -222,3 +230,142 @@ function initFormInteractions() {
     feedbackEl.className = `form-feedback is-${type}`;
   }
 }
+
+/**
+ * 5. YouTube 背景音樂模組（韓寶儀《往事只能回味》）
+ */
+let ytPlayer = null;
+let isMusicPlaying = false;
+let ytReady = false;
+let userManuallyPaused = false;
+
+function initYouTubeAudio() {
+  // 動態載入 YouTube IFrame API
+  if (!window.YT) {
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScript = document.getElementsByTagName("script")[0];
+    if (firstScript && firstScript.parentNode) {
+      firstScript.parentNode.insertBefore(tag, firstScript);
+    } else {
+      document.head.appendChild(tag);
+    }
+  }
+
+  // 註冊 YouTube API 全域回呼
+  window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player("ytPlayer", {
+      height: "1",
+      width: "1",
+      videoId: "sXdEZlWADrY",
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        loop: 1,
+        playlist: "sXdEZlWADrY",
+        playsinline: 1,
+        modestbranding: 1,
+        rel: 0,
+      },
+      events: {
+        onReady: (event) => {
+          ytReady = true;
+          event.target.setVolume(75);
+          // 嘗試直接自動播放
+          tryStartMusic();
+        },
+        onStateChange: onPlayerStateChange,
+      },
+    });
+  };
+
+  // 行動裝置相容性：首次觸控或滑動時自動喚醒播放（突破 iOS/Android 自動發聲限制）
+  setupFirstInteractionAutoplay();
+}
+
+function tryStartMusic() {
+  if (!ytPlayer || userManuallyPaused) return;
+  try {
+    ytPlayer.playVideo();
+  } catch (err) {
+    console.log("瀏覽器等待使用者觸控後播放音訊:", err);
+  }
+}
+
+function setupFirstInteractionAutoplay() {
+  const events = ["click", "touchstart", "touchend", "pointerdown", "scroll"];
+  
+  function triggerOnFirstTouch() {
+    if (!userManuallyPaused && ytPlayer && !isMusicPlaying) {
+      try {
+        ytPlayer.playVideo();
+      } catch (err) {
+        console.warn("Autoplay trigger:", err);
+      }
+    }
+    // 成功觸發後清理監聽
+    events.forEach((evt) => {
+      window.removeEventListener(evt, triggerOnFirstTouch, { capture: true });
+    });
+  }
+
+  events.forEach((evt) => {
+    window.addEventListener(evt, triggerOnFirstTouch, { capture: true, once: true });
+  });
+}
+
+function onPlayerStateChange(event) {
+  const musicToggleBtn = document.getElementById("musicToggleBtn");
+  const musicLabel = document.getElementById("musicLabel");
+  const musicDiscIcon = document.getElementById("musicDiscIcon");
+
+  // YT.PlayerState.PLAYING === 1
+  if (event.data === 1) {
+    isMusicPlaying = true;
+    musicToggleBtn?.classList.add("is-playing");
+    if (musicLabel) musicLabel.textContent = "音樂：開";
+    musicDiscIcon?.classList.add("spinning");
+  } else {
+    isMusicPlaying = false;
+    // 只有在使用者手動暫停或播放器真正停止時更新 UI
+    if (userManuallyPaused) {
+      musicToggleBtn?.classList.remove("is-playing");
+      if (musicLabel) musicLabel.textContent = "音樂：關";
+      musicDiscIcon?.classList.remove("spinning");
+    }
+  }
+}
+
+function initMusicToggle() {
+  const btn = document.getElementById("musicToggleBtn");
+  if (!btn) return;
+
+  btn.addEventListener("click", () => {
+    if (!ytReady || !ytPlayer || typeof ytPlayer.playVideo !== "function") {
+      btn.classList.add("is-loading");
+      return;
+    }
+
+    if (isMusicPlaying) {
+      userManuallyPaused = true;
+      ytPlayer.pauseVideo();
+      btn.classList.remove("is-playing");
+      const musicLabel = document.getElementById("musicLabel");
+      const musicDiscIcon = document.getElementById("musicDiscIcon");
+      if (musicLabel) musicLabel.textContent = "音樂：關";
+      musicDiscIcon?.classList.remove("spinning");
+    } else {
+      userManuallyPaused = false;
+      ytPlayer.playVideo();
+      btn.classList.add("is-playing");
+      const musicLabel = document.getElementById("musicLabel");
+      const musicDiscIcon = document.getElementById("musicDiscIcon");
+      if (musicLabel) musicLabel.textContent = "音樂：開";
+      musicDiscIcon?.classList.add("spinning");
+    }
+  });
+}
+
+
